@@ -81,6 +81,12 @@ class WhatsappGroupController extends Controller
                 
                 if (empty($waGroupId)) {
                     \Illuminate\Support\Facades\Log::warning('JID não encontrado na resposta da Evolution API: ' . json_encode($evolutionGroup));
+                } else {
+                    // Configura o grupo: apenas admins enviam mensagens
+                    $this->evolution->updateGroupSetting($waGroupId, 'announcement', 'on');
+                    
+                    // Altera a imagem do grupo
+                    $this->evolution->updateGroupPicture($waGroupId, 'https://www.radardosmarketplaces.com.br/assets/logo-t1N8LHZF.png');
                 }
 
                 $inviteLink = $this->evolution->getInviteLink($waGroupId);

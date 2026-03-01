@@ -173,4 +173,109 @@ class EvolutionService
             return null;
         }
     }
+
+    /**
+     * Atualiza as configurações do grupo (ex: somente admins podem enviar mensagem).
+     * 
+     * @param string $groupId JID do grupo
+     * @param string $action Ação a ser realizada (ex: 'announcement' para mensagens, 'restrict' para info)
+     * @param string $value Valor da configuração ('on' ou 'off')
+     */
+    public function updateGroupSetting(string $groupId, string $action, string $value)
+    {
+        $url = "{$this->baseUrl}/group/updateSetting/{$this->instance}";
+        
+        try {
+            $response = Http::withHeaders([
+                'apikey' => $this->apiKey,
+                'Content-Type' => 'application/json'
+            ])->post($url, [
+                'groupJid' => $groupId,
+                'action' => $action,
+                'value' => $value
+            ]);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            Log::error("Evolution API error (updateGroupSetting) - Status: {$response->status()} - Response: " . $response->body());
+
+            // Tentativa V2
+            if ($response->status() === 404 && strpos($this->baseUrl, '/v2') === false) {
+                $v2Url = "{$this->baseUrl}/v2/group/updateSetting/{$this->instance}";
+                Log::info("Tentando atualizar configuração via V2: {$v2Url}");
+
+                $v2Response = Http::withHeaders([
+                    'apikey' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ])->post($v2Url, [
+                    'groupJid' => $groupId,
+                    'action' => $action,
+                    'value' => $value
+                ]);
+
+                if ($v2Response->successful()) {
+                    return $v2Response->json();
+                }
+                Log::error("Evolution API V2 error (updateGroupSetting) - Status: {$v2Response->status()} - Response: " . $v2Response->body());
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error("Evolution API exception (updateGroupSetting): " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Altera a imagem do grupo.
+     * 
+     * @param string $groupId JID do grupo
+     * @param string $imageUrl URL da nova imagem
+     */
+    public function updateGroupPicture(string $groupId, string $imageUrl)
+    {
+        $url = "{$this->baseUrl}/group/updateGroupPicture/{$this->instance}";
+        
+        try {
+            $response = Http::withHeaders([
+                'apikey' => $this->apiKey,
+                'Content-Type' => 'application/json'
+            ])->post($url, [
+                'groupJid' => $groupId,
+                'image' => $imageUrl
+            ]);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            Log::error("Evolution API error (updateGroupPicture) - Status: {$response->status()} - Response: " . $response->body());
+
+            // Tentativa V2
+            if ($response->status() === 404 && strpos($this->baseUrl, '/v2') === false) {
+                $v2Url = "{$this->baseUrl}/v2/group/updateGroupPicture/{$this->instance}";
+                Log::info("Tentando alterar imagem via V2: {$v2Url}");
+
+                $v2Response = Http::withHeaders([
+                    'apikey' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ])->post($v2Url, [
+                    'groupJid' => $groupId,
+                    'image' => $imageUrl
+                ]);
+
+                if ($v2Response->successful()) {
+                    return $v2Response->json();
+                }
+                Log::error("Evolution API V2 error (updateGroupPicture) - Status: {$v2Response->status()} - Response: " . $v2Response->body());
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error("Evolution API exception (updateGroupPicture): " . $e->getMessage());
+            return null;
+        }
+    }
 }
