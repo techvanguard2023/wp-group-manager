@@ -183,42 +183,50 @@ class EvolutionService
      * Atualiza as configurações do grupo (ex: somente admins podem enviar mensagem).
      * 
      * @param string $groupId JID do grupo
-     * @param string $action Ação a ser realizada (ex: 'announcement' para apenas admins, 'not_announcement' para todos)
-     * @param string|null $value Opcional: valor da configuração
+     * @param string $action Ação a ser realizada ('announcement', 'not_announcement', 'locked', 'unlocked')
      */
-    public function updateGroupSetting(string $groupId, string $action, ?string $value = null)
+    public function updateGroupSetting(string $groupId, string $action)
     {
-        // V1/V2 costumam usar PUT para configurações e groupJid como query param
+        // V2 costuma usar POST e action no body. groupJid pode ser query param ou body.
         $url = "{$this->baseUrl}/group/updateSetting/{$this->instance}";
         
-        $payload = ['action' => $action];
-        if ($value !== null) {
-            $payload['value'] = $value;
-        }
-
         try {
+            // Tenta com groupJid no query param e action no body (padrão V2)
             $response = Http::withHeaders([
                 'apikey' => $this->apiKey,
                 'Content-Type' => 'application/json'
-            ])->put($url . "?groupJid={$groupId}", $payload);
+            ])->post($url . "?groupJid={$groupId}", [
+                'action' => $action
+            ]);
 
-            Log::info("Evolution updateGroupSetting raw response: " . $response->body());
+            Log::info("Evolution updateGroupSetting raw response (POST qp): " . $response->body());
 
             if ($response->successful()) {
                 return $response->json();
             }
 
-            Log::error("Evolution API error (updateGroupSetting) - Status: {$response->status()} - Response: " . $response->body());
+            // Fallback: tenta com groupJid no body
+            $responseBody = Http::withHeaders([
+                'apikey' => $this->apiKey,
+                'Content-Type' => 'application/json'
+            ])->post($url, [
+                'groupJid' => $groupId,
+                'action' => $action
+            ]);
 
-            // Tentativa V2 fallback (alguns usam /v2 no path)
+            Log::info("Evolution updateGroupSetting raw response (POST body): " . $responseBody->body());
+
+            if ($responseBody->successful()) {
+                return $responseBody->json();
+            }
+
+            // Fallback V2 path
             if (strpos($this->baseUrl, '/v2') === false) {
                 $v2Url = "{$this->baseUrl}/v2/group/updateSetting/{$this->instance}";
-                Log::info("Tentando atualizar configuração via V2 fallback: {$v2Url}");
-
                 $v2Response = Http::withHeaders([
                     'apikey' => $this->apiKey,
                     'Content-Type' => 'application/json'
-                ])->put($v2Url . "?groupJid={$groupId}", $payload);
+                ])->post($v2Url . "?groupJid={$groupId}", ['action' => $action]);
 
                 if ($v2Response->successful()) {
                     return $v2Response->json();
@@ -243,7 +251,7 @@ class EvolutionService
         $url = "{$this->baseUrl}/group/updateGroupPicture/{$this->instance}";
         
         try {
-            // Algumas versões usam POST, outras PUT. Vamos tentar POST primeiro.
+            // Tenta com groupJid no query param (comum em V2)
             $response = Http::withHeaders([
                 'apikey' => $this->apiKey,
                 'Content-Type' => 'application/json'
@@ -251,40 +259,37 @@ class EvolutionService
                 'image' => $imageUrl
             ]);
 
-            Log::info("Evolution updateGroupPicture raw response: " . $response->body());
+            Log::info("Evolution updateGroupPicture raw response (POST qp): " . $response->body());
 
             if ($response->successful()) {
                 return $response->json();
             }
 
-            Log::error("Evolution API error (updateGroupPicture) - Status: {$response->status()} - Response: " . $response->body());
+            // Tenta com groupJid no body (comum em V1)
+            $responseBody = Http::withHeaders([
+                'apikey' => $this->apiKey,
+                'Content-Type' => 'application/json'
+            ])->post($url, [
+                'groupJid' => $groupId,
+                'image' => $imageUrl
+            ]);
 
-            // Tentativa fallback com PUT ou V2
+            Log::info("Evolution updateGroupPicture raw response (POST body): " . $responseBody->body());
+
+            if ($responseBody->successful()) {
+                return $responseBody->json();
+            }
+
+            // Fallback V2 path
             if (strpos($this->baseUrl, '/v2') === false) {
                 $v2Url = "{$this->baseUrl}/v2/group/updateGroupPicture/{$this->instance}";
-                Log::info("Tentando alterar imagem via fallback: {$v2Url}");
-
                 $v2Response = Http::withHeaders([
                     'apikey' => $this->apiKey,
                     'Content-Type' => 'application/json'
-                ])->post($v2Url . "?groupJid={$groupId}", [
-                    'image' => $imageUrl
-                ]);
+                ])->post($v2Url . "?groupJid={$groupId}", ['image' => $imageUrl]);
 
                 if ($v2Response->successful()) {
                     return $v2Response->json();
-                }
-                
-                // Tenta com PUT se falhar com POST no endpoint original
-                $putResponse = Http::withHeaders([
-                    'apikey' => $this->apiKey,
-                    'Content-Type' => 'application/json'
-                ])->put($url . "?groupJid={$groupId}", [
-                    'image' => $imageUrl
-                ]);
-                
-                if ($putResponse->successful()) {
-                    return $putResponse->json();
                 }
             }
 
