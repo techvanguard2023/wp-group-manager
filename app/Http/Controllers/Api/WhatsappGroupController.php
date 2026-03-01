@@ -76,14 +76,21 @@ class WhatsappGroupController extends Controller
                     throw new \Exception("Falha ao criar grupo na API Evolution.");
                 }
 
-                // Tenta pegar o JID de diferentes lugares (padronizando V1/V2)
-                $waGroupId = $evolutionGroup['jid'] ?? $evolutionGroup['response']['jid'] ?? '';
+                \Illuminate\Support\Facades\Log::info('Evolution createGroup full response: ' . json_encode($evolutionGroup));
+
+                // Tenta pegar o JID (V1 usa 'jid', V2 costuma usar 'id' ou estar dentro de 'response')
+                $waGroupId = $evolutionGroup['id'] ?? $evolutionGroup['jid'] ?? 
+                             $evolutionGroup['response']['id'] ?? $evolutionGroup['response']['jid'] ?? '';
+                
+                \Illuminate\Support\Facades\Log::info("Extracted WA Group ID: " . $waGroupId);
                 
                 if (empty($waGroupId)) {
                     \Illuminate\Support\Facades\Log::warning('JID não encontrado na resposta da Evolution API: ' . json_encode($evolutionGroup));
+                    throw new \Exception("ID do grupo não retornado pela API Evolution.");
                 } else {
                     // Configura o grupo: apenas admins enviam mensagens
-                    $settingResult = $this->evolution->updateGroupSetting($waGroupId, 'announcement', 'on');
+                    // Na V2 o action 'announcement' já ativa a restrição
+                    $settingResult = $this->evolution->updateGroupSetting($waGroupId, 'announcement');
                     \Illuminate\Support\Facades\Log::info('Update setting result: ' . json_encode($settingResult));
                     
                     // Altera a imagem do grupo
