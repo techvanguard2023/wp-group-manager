@@ -56,7 +56,9 @@ class EvolutionService
                 ]);
 
                 if ($v2Response->successful()) {
-                    return $v2Response->json();
+                    $json = $v2Response->json();
+                    file_put_contents('/tmp/evolution_debug.log', "V2 createGroup response: " . json_encode($json) . PHP_EOL, FILE_APPEND);
+                    return $json;
                 }
                 
                 Log::error("Evolution API V2 error (createGroup) - Status: {$v2Response->status()} - Response: " . $v2Response->body());
@@ -137,6 +139,8 @@ class EvolutionService
 
             if ($response->successful()) {
                 $data = $response->json();
+                file_put_contents('/tmp/evolution_debug.log', "getInviteLink response: " . json_encode($data) . PHP_EOL, FILE_APPEND);
+                Log::info('Evolution API response (getInviteLink): ' . json_encode($data));
                 $code = $data['inviteCode'] ?? $data['invite_code'] ?? 
                         $data['response']['inviteCode'] ?? $data['response']['invite_code'] ?? null;
                 
@@ -162,6 +166,7 @@ class EvolutionService
 
                 if ($v2Response->successful()) {
                     $data = $v2Response->json();
+                    Log::info('Evolution API V2 response (getInviteLink): ' . json_encode($data));
                     $code = $data['inviteCode'] ?? $data['invite_code'] ?? null;
                     return $code ? "https://chat.whatsapp.com/{$code}" : null;
                 }
@@ -183,17 +188,19 @@ class EvolutionService
      */
     public function updateGroupSetting(string $groupId, string $action, string $value)
     {
+        // V1/V2 costumam usar PUT para configurações e groupJid como query param
         $url = "{$this->baseUrl}/group/updateSetting/{$this->instance}";
         
         try {
             $response = Http::withHeaders([
                 'apikey' => $this->apiKey,
                 'Content-Type' => 'application/json'
-            ])->post($url, [
-                'groupJid' => $groupId,
+            ])->put($url . "?groupJid={$groupId}", [
                 'action' => $action,
                 'value' => $value
             ]);
+
+            Log::info("Evolution updateGroupSetting raw response: " . $response->body());
 
             if ($response->successful()) {
                 return $response->json();
@@ -209,8 +216,7 @@ class EvolutionService
                 $v2Response = Http::withHeaders([
                     'apikey' => $this->apiKey,
                     'Content-Type' => 'application/json'
-                ])->post($v2Url, [
-                    'groupJid' => $groupId,
+                ])->put($v2Url . "?groupJid={$groupId}", [
                     'action' => $action,
                     'value' => $value
                 ]);
@@ -239,6 +245,7 @@ class EvolutionService
         $url = "{$this->baseUrl}/group/updateGroupPicture/{$this->instance}";
         
         try {
+            // Algumas versões usam POST, outras PUT. Vamos tentar POST primeiro.
             $response = Http::withHeaders([
                 'apikey' => $this->apiKey,
                 'Content-Type' => 'application/json'
@@ -247,16 +254,18 @@ class EvolutionService
                 'image' => $imageUrl
             ]);
 
+            Log::info("Evolution updateGroupPicture raw response: " . $response->body());
+
             if ($response->successful()) {
                 return $response->json();
             }
 
             Log::error("Evolution API error (updateGroupPicture) - Status: {$response->status()} - Response: " . $response->body());
 
-            // Tentativa V2
-            if ($response->status() === 404 && strpos($this->baseUrl, '/v2') === false) {
+            // Tentativa V2 ou com PUT
+            if (strpos($this->baseUrl, '/v2') === false) {
                 $v2Url = "{$this->baseUrl}/v2/group/updateGroupPicture/{$this->instance}";
-                Log::info("Tentando alterar imagem via V2: {$v2Url}");
+                Log::info("Tentando alterar imagem via V2 ou PUT: {$v2Url}");
 
                 $v2Response = Http::withHeaders([
                     'apikey' => $this->apiKey,
@@ -269,7 +278,19 @@ class EvolutionService
                 if ($v2Response->successful()) {
                     return $v2Response->json();
                 }
-                Log::error("Evolution API V2 error (updateGroupPicture) - Status: {$v2Response->status()} - Response: " . $v2Response->body());
+                
+                // Tenta com PUT se falhar com POST
+                $putResponse = Http::withHeaders([
+                    'apikey' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ])->put($url, [
+                    'groupJid' => $groupId,
+                    'image' => $imageUrl
+                ]);
+                
+                if ($putResponse->successful()) {
+                    return $putResponse->json();
+                }
             }
 
             return null;
