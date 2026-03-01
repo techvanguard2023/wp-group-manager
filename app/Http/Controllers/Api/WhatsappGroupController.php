@@ -148,7 +148,7 @@ class WhatsappGroupController extends Controller
     public function activeGroups()
     {
         return WhatsappGroup::where('is_active', true)
-                           ->pluck('wa_group_id')
+                           ->pluck('wa_group_id', 'invite_link')
                            ->values();
     }
 }
