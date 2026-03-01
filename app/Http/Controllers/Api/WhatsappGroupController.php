@@ -88,14 +88,19 @@ class WhatsappGroupController extends Controller
                     \Illuminate\Support\Facades\Log::warning('JID não encontrado na resposta da Evolution API: ' . json_encode($evolutionGroup));
                     throw new \Exception("ID do grupo não retornado pela API Evolution.");
                 } else {
-                    // Configura o grupo: apenas admins enviam mensagens
-                    // Na V2 o action 'announcement' já ativa a restrição
-                    $settingResult = $this->evolution->updateGroupSetting($waGroupId, 'announcement');
-                    \Illuminate\Support\Facades\Log::info('Update setting result: ' . json_encode($settingResult));
                     
                     // Altera a imagem do grupo
                     $pictureResult = $this->evolution->updateGroupPicture($waGroupId, 'https://www.radardosmarketplaces.com.br/assets/logo-t1N8LHZF.png');
                     \Illuminate\Support\Facades\Log::info('Update picture result: ' . json_encode($pictureResult));
+
+                    // Configura o grupo: apenas admins enviam mensagens
+                    // Na V2 o action 'announcement' já ativa a restrição
+                    $settingResult = $this->evolution->updateGroupSetting($waGroupId, 'announcement');
+                    \Illuminate\Support\Facades\Log::info('Update setting result: ' . json_encode($settingResult));
+
+                    // Bloqueia o grupo
+                    $lockResult = $this->evolution->updateGroupSetting($waGroupId, 'locked');
+                    \Illuminate\Support\Facades\Log::info('Update lock result: ' . json_encode($lockResult));
                 }
 
                 // Pequeno delay para garantir que o grupo esteja pronto na API
