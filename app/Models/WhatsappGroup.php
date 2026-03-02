@@ -14,7 +14,7 @@ class WhatsappGroup extends Model
 
     protected $fillable = [
         'name', 'wa_group_id', 'wa_group_id_hash', 'invite_link', 'current_members',
-        'max_members', 'is_active'
+        'max_members', 'is_active', 'category_id'
     ];
 
     protected $hidden = ['wa_group_id_hash'];
@@ -25,6 +25,11 @@ class WhatsappGroup extends Model
         'invite_link' => 'encrypted',
         'is_active' => 'boolean',
     ];
+
+    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     protected static function booted()
     {

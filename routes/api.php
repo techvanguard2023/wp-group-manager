@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\WhatsappGroupController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\CategoryController;
 
 Route::prefix('v1')->group(function () {
 
@@ -14,6 +15,8 @@ Route::prefix('v1')->group(function () {
 
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
+
+    Route::get('categories', [CategoryController::class, 'index']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);

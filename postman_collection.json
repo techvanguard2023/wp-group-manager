@@ -384,7 +384,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"phone\": \"+5511999999999\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\"\n}",
+                            "raw": "{\n    \"phone\": \"+5511999999999\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"selectedCategories\": [1, 2]\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -401,6 +401,45 @@
                                 "v1",
                                 "contacts",
                                 "add"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Categories",
+            "item": [
+                {
+                    "name": "List Categories",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/categories",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "categories"
                             ]
                         }
                     },
