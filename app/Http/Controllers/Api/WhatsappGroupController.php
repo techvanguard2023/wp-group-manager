@@ -102,6 +102,11 @@ class WhatsappGroupController extends Controller
                         $this->evolution->updateGroupPicture($waGroupId, 'https://www.radardosmarketplaces.com.br/assets/logo-t1N8LHZF.png');
                         $this->evolution->updateGroupSetting($waGroupId, 'announcement');
                         $this->evolution->updateGroupSetting($waGroupId, 'locked');
+                        
+                        // Atualiza a descrição do grupo com a descrição da categoria
+                        if (!empty($category->description)) {
+                            $this->evolution->updateGroupDescription($waGroupId, $category->description);
+                        }
 
                         sleep(2);
                         $inviteLink = $this->evolution->getInviteLink($waGroupId);

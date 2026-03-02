@@ -13,47 +13,19 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
+        $standardDescription = "➡️ Convide amigos para participar do grupo https://www.radardosmarketplaces.com.br\n\n🔥 Ofertas relâmpago! Se gostou do produto e preço, aproveite pois pode acabar rápido\n\n❌ NUNCA enviamos mensagens no privado!";
+
         $categories = [
-            [
-                'name' => 'Beleza & Cuidado Pessoal',
-                'description' => 'Produtos de beleza e cuidados pessoais',
-            ],
-            [
-                'name' => 'Brinquedos & Games',
-                'description' => 'Brinquedos e games',
-            ],
-            [
-                'name' => 'Casa & Decoração',
-                'description' => 'Produtos de casa e decoração',
-            ],
-            [
-                'name' => 'Eletrônicos & Tecnologia',
-                'description' => 'Produtos de eletrônicos, informática e tecnologia',
-            ],
-            [
-                'name' => 'Esportes & Fitness',
-                'description' => 'Produtos de esportes e fitness',
-            ],
-            [
-                'name' => 'Moda & Acessórios',
-                'description' => 'Produtos de moda e acessórios',
-            ],
-            [
-                'name' => 'Saúde & Bem-Estar',
-                'description' => 'Produtos de saúde e bem-estar',
-            ],
-            [
-                'name' => 'Pet Shop',
-                'description' => 'Produtos de pet shop',
-            ],
-            [
-                'name' => 'Promoções Relâmpago',
-                'description' => 'Promoções relâmpago',
-            ],
-            [
-                'name' => 'Outros',
-                'description' => 'Outros',
-            ],
+            ['name' => 'Beleza & Cuidado Pessoal', 'description' => $standardDescription],
+            ['name' => 'Brinquedos & Games', 'description' => $standardDescription],
+            ['name' => 'Casa & Decoração', 'description' => $standardDescription],
+            ['name' => 'Eletrônicos & Tecnologia', 'description' => $standardDescription],
+            ['name' => 'Esportes & Fitness', 'description' => $standardDescription],
+            ['name' => 'Moda & Acessórios', 'description' => $standardDescription],
+            ['name' => 'Saúde & Bem-Estar', 'description' => $standardDescription],
+            ['name' => 'Pet Shop', 'description' => $standardDescription],
+            ['name' => 'Promoções Relâmpago', 'description' => $standardDescription],
+            ['name' => 'Outros', 'description' => $standardDescription],
         ];
 
         foreach ($categories as $category) {

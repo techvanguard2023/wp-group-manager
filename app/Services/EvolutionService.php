@@ -299,4 +299,64 @@ class EvolutionService
             return null;
         }
     }
+
+    /**
+     * Altera a descrição do grupo.
+     * 
+     * @param string $groupId JID do grupo
+     * @param string $description Nova descrição do grupo
+     */
+    public function updateGroupDescription(string $groupId, string $description)
+    {
+        $url = "{$this->baseUrl}/group/updateGroupDescription/{$this->instance}";
+        
+        try {
+            // Tenta com groupJid no query param (comum em V2)
+            $response = Http::withHeaders([
+                'apikey' => $this->apiKey,
+                'Content-Type' => 'application/json'
+            ])->post($url . "?groupJid={$groupId}", [
+                'description' => $description
+            ]);
+
+            Log::info("Evolution updateGroupDescription raw response (POST qp): " . $response->body());
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            // Tenta com groupJid no body (comum em V1)
+            $responseBody = Http::withHeaders([
+                'apikey' => $this->apiKey,
+                'Content-Type' => 'application/json'
+            ])->post($url, [
+                'groupJid' => $groupId,
+                'description' => $description
+            ]);
+
+            Log::info("Evolution updateGroupDescription raw response (POST body): " . $responseBody->body());
+
+            if ($responseBody->successful()) {
+                return $responseBody->json();
+            }
+
+            // Fallback V2 path
+            if (strpos($this->baseUrl, '/v2') === false) {
+                $v2Url = "{$this->baseUrl}/v2/group/updateGroupDescription/{$this->instance}";
+                $v2Response = Http::withHeaders([
+                    'apikey' => $this->apiKey,
+                    'Content-Type' => 'application/json'
+                ])->post($v2Url . "?groupJid={$groupId}", ['description' => $description]);
+
+                if ($v2Response->successful()) {
+                    return $v2Response->json();
+                }
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error("Evolution API exception (updateGroupDescription): " . $e->getMessage());
+            return null;
+        }
+    }
 }
