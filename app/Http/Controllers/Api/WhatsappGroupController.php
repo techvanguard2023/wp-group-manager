@@ -175,8 +175,6 @@ class WhatsappGroupController extends Controller
                                 ];
                                });
 
-        return response()->json([
-            'groups' => $groups
-        ]);
+        return response()->json($groups);
     }
 }
