@@ -22,7 +22,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
 
         Route::apiResource('whatsapp-groups', WhatsappGroupController::class);
-        Route::apiResource('contacts', ContactController::class)->only(['index', 'show']);
+        Route::apiResource('contacts', ContactController::class)->only(['index', 'show', 'store']);
         Route::post('contacts/add', [WhatsappGroupController::class, 'addContact']);
         Route::get('groups/active', [WhatsappGroupController::class, 'activeGroups']);
         Route::get('categories', [CategoryController::class, 'index']);
