@@ -55,19 +55,24 @@ class ContactController extends Controller
             'whatsapp_group_id' => 'nullable|uuid|exists:whatsapp_groups,id'
         ]);
 
-        $contact = \App\Models\Contact::create($request->only(['phone', 'name', 'email', 'notes']));
+        $contact = \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            $contact = \App\Models\Contact::create($request->only(['phone', 'name', 'email', 'notes']));
 
-        if ($request->filled('whatsapp_group_id')) {
-            $group = \App\Models\WhatsappGroup::find($request->whatsapp_group_id);
-            
-            if ($group) {
-                // Relaciona o contato na tabela group_contacts
-                if (!$contact->groups()->where('whatsapp_group_id', $group->id)->exists()) {
-                    $contact->groups()->attach($group->id, ['added_at' => now()]);
-                    $group->increment('current_members');
+            if ($request->filled('whatsapp_group_id')) {
+                $group = \App\Models\WhatsappGroup::find($request->whatsapp_group_id);
+                
+                if ($group) {
+                    // Relaciona o contato na tabela group_contacts
+                    // Como é um contato novo, não precisamos checar se já existe, mas por segurança:
+                    if (!$contact->groups()->where('whatsapp_group_id', $group->id)->exists()) {
+                        $contact->groups()->attach($group->id, ['added_at' => now()]);
+                        $group->increment('current_members');
+                    }
                 }
             }
-        }
+            
+            return $contact;
+        });
 
         return response()->json([
             'success' => true,
