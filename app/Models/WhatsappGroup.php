@@ -42,7 +42,7 @@ class WhatsappGroup extends Model
 
     public function contacts(): BelongsToMany
     {
-        return $this->belongsToMany(Contact::class, 'group_contacts')
+        return $this->belongsToMany(Contact::class, 'group_contacts', 'whatsapp_group_id', 'contact_id')
                     ->withTimestamps()
                     ->using(GroupContact::class);
     }

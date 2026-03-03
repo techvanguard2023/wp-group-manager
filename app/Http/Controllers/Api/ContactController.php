@@ -59,15 +59,15 @@ class ContactController extends Controller
             $contact = \App\Models\Contact::create($request->only(['phone', 'name', 'email', 'notes']));
 
             if ($request->filled('whatsapp_group_id')) {
+                // O middleware 'exists:whatsapp_groups,id' já garante que o ID é válido se estiver presente
                 $group = \App\Models\WhatsappGroup::find($request->whatsapp_group_id);
                 
                 if ($group) {
                     // Relaciona o contato na tabela group_contacts
-                    // Como é um contato novo, não precisamos checar se já existe, mas por segurança:
-                    if (!$contact->groups()->where('whatsapp_group_id', $group->id)->exists()) {
-                        $contact->groups()->attach($group->id, ['added_at' => now()]);
-                        $group->increment('current_members');
-                    }
+                    // O attach() usará o ID do $contact e o ID do $group.
+                    // Com a configuração correta do Pivot model, o UUID da PK será gerado.
+                    $contact->groups()->attach($group->id, ['added_at' => now()]);
+                    $group->increment('current_members');
                 }
             }
             

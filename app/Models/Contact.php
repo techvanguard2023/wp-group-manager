@@ -37,7 +37,7 @@ class Contact extends Model
 
     public function groups(): BelongsToMany
     {
-        return $this->belongsToMany(WhatsappGroup::class, 'group_contacts')
+        return $this->belongsToMany(WhatsappGroup::class, 'group_contacts', 'contact_id', 'whatsapp_group_id')
                     ->using(GroupContact::class)
                     ->withPivot('added_at')
                     ->withTimestamps();
