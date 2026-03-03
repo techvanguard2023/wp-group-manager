@@ -158,7 +158,8 @@ class WhatsappGroupController extends Controller
     // Para n8n: grupos ativos para envio
     public function activeGroups()
     {
-        $groups = WhatsappGroup::where('is_active', true)
+        $groups = WhatsappGroup::with('category')
+                               ->where('is_active', true)
                                ->get()
                                ->map(function ($group) {
                                    return [
@@ -167,7 +168,7 @@ class WhatsappGroupController extends Controller
                                     'wa_group_id' => $group->wa_group_id,
                                     'invite_link' => $group->invite_link,
                                     'category_id' => $group->category_id,
-                                    'category_name' => $group->category->name,
+                                    'category_name' => $group->category->name ?? 'N/A',
                                     'current_members' => $group->current_members,
                                     'max_members' => $group->max_members,
                                     'is_active' => $group->is_active

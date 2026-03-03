@@ -407,6 +407,42 @@
                     "response": []
                 },
                 {
+                    "name": "Find Contact by Phone",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/contacts/phone/+5511999999999",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "contacts",
+                                "phone",
+                                "+5511999999999"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "Store Contact",
                     "request": {
                         "auth": {

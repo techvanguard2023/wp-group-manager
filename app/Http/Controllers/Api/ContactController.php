@@ -76,6 +76,33 @@ class ContactController extends Controller
     }
 
     /**
+     * Busca um contato pelo número de telefone.
+     * 
+     * @param  string  $phone
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function findByPhone($phone)
+    {
+        $phoneHash = hash_hmac('sha256', $phone, config('app.key'));
+        
+        $contact = Contact::where('phone_hash', $phoneHash)
+                         ->with('groups')
+                         ->first();
+
+        if (!$contact) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Contato não encontrado.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $contact
+        ]);
+    }
+
+    /**
      * Exibe os detalhes de um contato específico.
      * 
      * @param string $id
