@@ -464,7 +464,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"phone\": \"+5511988888888\",\n    \"name\": \"Jane Doe\",\n    \"email\": \"jane@example.com\",\n    \"notes\": \"Manual entry\",\n    \"wa_group_id\": \"120363422691508084@g.us\"\n}",
+                            "raw": "{\n    \"phone\": \"+5511988888888\",\n    \"name\": \"Jane Doe\",\n    \"email\": \"jane@example.com\",\n    \"notes\": \"Manual entry\",\n    \"whatsapp_group_id\": \"uuid-do-grupo\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"

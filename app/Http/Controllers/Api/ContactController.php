@@ -52,13 +52,13 @@ class ContactController extends Controller
             'name' => 'nullable|string|max:100',
             'email' => 'nullable|email',
             'notes' => 'nullable|string',
-            'wa_group_id' => 'nullable|string' // O JID do grupo do WhatsApp
+            'whatsapp_group_id' => 'nullable|uuid|exists:whatsapp_groups,id'
         ]);
 
         $contact = \App\Models\Contact::create($request->only(['phone', 'name', 'email', 'notes']));
 
-        if ($request->filled('wa_group_id')) {
-            $group = \App\Models\WhatsappGroup::where('wa_group_id', $request->wa_group_id)->first();
+        if ($request->filled('whatsapp_group_id')) {
+            $group = \App\Models\WhatsappGroup::find($request->whatsapp_group_id);
             
             if ($group) {
                 // Relaciona o contato na tabela group_contacts
