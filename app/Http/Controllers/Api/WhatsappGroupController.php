@@ -161,11 +161,21 @@ class WhatsappGroupController extends Controller
         $groups = WhatsappGroup::where('is_active', true)
                                ->get()
                                ->map(function ($group) {
-                                   return ['id' => $group->wa_group_id];
+                                   return [
+                                    'id' => $group->id,
+                                    'name' => $group->name,
+                                    'wa_group_id' => $group->wa_group_id,
+                                    'invite_link' => $group->invite_link,
+                                    'category_id' => $group->category_id,
+                                    'category_name' => $group->category->name,
+                                    'current_members' => $group->current_members,
+                                    'max_members' => $group->max_members,
+                                    'is_active' => $group->is_active
+                                ];
                                });
 
         return response()->json([
-            'groups_id' => $groups
+            'groups' => $groups
         ]);
     }
 }
