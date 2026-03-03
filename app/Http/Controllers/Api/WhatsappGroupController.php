@@ -158,8 +158,14 @@ class WhatsappGroupController extends Controller
     // Para n8n: grupos ativos para envio
     public function activeGroups()
     {
-        return WhatsappGroup::where('is_active', true)
-                           ->pluck('wa_group_id', 'invite_link')
-                           ->values();
+        $groups = WhatsappGroup::where('is_active', true)
+                               ->get()
+                               ->map(function ($group) {
+                                   return ['id' => $group->wa_group_id];
+                               });
+
+        return response()->json([
+            'groups_id' => $groups
+        ]);
     }
 }
